@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>For Aadi</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=EB+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Raleway:wght@200;300&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #080707;
+    --bg2: #0e0c0b;
+    --gold: #c8a45a;
+    --gold-dim: #7a5f30;
+    --gold-glow: rgba(200, 164, 90, 0.2);
+    --cream: #ede0c8;
+    --muted: #5a4f40;
+    --vinyl-dark: #111010;
+    --vinyl-mid: #1a1818;
+    --vinyl-groove: #0d0c0c;
+    --label-bg: #1c1209;
+    --label-gold: #b8922a;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    overflow: hidden;
+    font-family: 'EB Garamond', serif;
+    color: var(--cream);
+  }
+
+  /* Grain */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.5;
+  }
+
+  .scene {
+    width: 100vw; height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    position: relative;
+    gap: 0;
+  }
+
+  /* Ambient glow behind record */
+  .glow-bg {
+    position: absolute;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,164,90,0.06) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -58%);
+    pointer-events: none;
+    transition: opacity 1s ease;
+  }
+
+  /* ── TURNTABLE PLATTER ── */
+  .turntable {
+    position: relative;
+    width: 320px; height: 320px;
+    margin-top: -20px;
+  }
+
+  /* Platter base */
+  .platter {
+    position: absolute; inset: -18px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #2a2520, #111010 60%, #0a0908);
+    box-shadow:
+      0 0 0 2px #1e1a16,
+      0 8px 40px rgba(0,0,0,0.9),
+      0 2px 8px rgba(0,0,0,0.7),
+      inset 0 1px 2px rgba(255,255,255,0.03);
+  }
+
+  /* ── VINYL RECORD ── */
+  .record {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    background:
+      repeating-radial-gradient(
+        circle at 50% 50%,
+        var(--vinyl-groove) 0px,
+        var(--vinyl-groove) 1.2px,
+        var(--vinyl-mid) 1.2px,
+        var(--vinyl-mid) 3px
+      );
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.04),
+      inset 0 0 60px rgba(0,0,0,0.5);
+    animation: spin 3s linear infinite;
+    transition: animation-play-state 0.5s;
+  }
+
+  .record.paused {
+    animation-play-state: paused;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  /* Vinyl shine overlay */
+  .record::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0%,
+      rgba(255,255,255,0.015) 10%,
+      transparent 20%,
+      rgba(255,255,255,0.03) 35%,
+      transparent 50%,
+      rgba(255,255,255,0.01) 65%,
+      transparent 80%,
+      rgba(255,255,255,0.02) 90%,
+      transparent 100%
+    );
+  }
+
+  /* ── CENTER LABEL ── */
+  .label {
+    position: absolute;
+    width: 110px; height: 110px;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 30%, #2a1d0a, var(--label-bg) 60%, #100c05);
+    border: 1px solid var(--gold-dim);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 3px;
+    box-shadow:
+      0 0 0 3px rgba(200,164,90,0.08),
+      0 2px 12px rgba(0,0,0,0.8),
+      inset 0 1px 3px rgba(200,164,90,0.1);
+    z-index: 2;
+  }
+
+  .label-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.62rem;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.8;
+  }
+
+  .label-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 20px rgba(200,164,90,0.5);
+    line-height: 1;
+  }
+
+  .label-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--gold-dim);
+    margin-top: 2px;
+  }
+
+  .label-sub {
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.45rem;
+    font-weight: 200;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+  }
+
+  /* ── TONEARM ── */
+  .tonearm-wrapper {
+    position: absolute;
+    top: -30px;
+    right: -55px;
+    width: 160px; height: 220px;
+    transform-origin: 18px 18px;
+    transform: rotate(-28deg);
+    transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+    cursor: pointer;
+  }
+
+  .tonearm-wrapper.lifted {
+    transform: rotate(-60deg);
+  }
+
+  /* Pivot circle */
+  .pivot {
+    position: absolute;
+    top: 0; left: 0;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #3a3530, #1a1815);
+    border: 1px solid rgba(200,164,90,0.25);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    z-index: 2;
+  }
+
+  .pivot::after {
+    content: '';
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 6px rgba(200,164,90,0.6);
+  }
+
+  /* Arm shaft */
+  .arm {
+    position: absolute;
+    top: 17px; left: 17px;
+    width: 3px;
+    height: 165px;
+    background: linear-gradient(180deg, #5a5248, #3a3530, #2a2520);
+    border-radius: 2px;
+    transform-origin: top center;
+    transform: rotate(8deg);
+    box-shadow: 1px 0 4px rgba(0,0,0,0.5);
+  }
+
+  /* Headshell at bottom of arm */
+  .headshell {
+    position: absolute;
+    bottom: 0; left: -8px;
+    width: 18px; height: 26px;
+    background: linear-gradient(160deg, #4a4540, #252220);
+    border-radius: 3px 3px 6px 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.7);
+  }
+
+  .stylus {
+    position: absolute;
+    bottom: -5px; left: 50%;
+    transform: translateX(-50%);
+    width: 2px; height: 8px;
+    background: linear-gradient(180deg, #888, #c8a45a);
+    border-radius: 0 0 2px 2px;
+  }
+
+  /* ── HINT TEXT ── */
+  .hint {
+    margin-top: 28px;
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 200;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.4s, opacity 0.4s;
+    user-select: none;
+    animation: hintPulse 3s ease-in-out infinite;
+  }
+
+  .hint:hover { color: var(--gold); }
+
+  .hint.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @keyframes hintPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  /* ── MESSAGE OVERLAY ── */
+  .message-overlay {
+    position: fixed; inset: 0;
+    background: rgba(6, 5, 4, 0.0);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 50;
+    pointer-events: none;
+    transition: background 1.2s ease;
+  }
+
+  .message-overlay.open {
+    background: rgba(6, 5, 4, 0.88);
+    pointer-events: all;
+  }
+
+  .message-card {
+    max-width: 480px;
+    width: 88%;
+    text-align: center;
+    padding: 3rem 2rem;
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+    transition: opacity 1.4s ease 0.6s, transform 1.4s ease 0.6s;
+  }
+
+  .message-overlay.open .message-card {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .msg-top-line {
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.58rem;
+    font-weight: 200;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 2rem;
+  }
+
+  .msg-text {
+    font-family: 'EB Garamond', serif;
+    font-size: clamp(1.15rem, 3vw, 1.45rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.95;
+    color: var(--cream);
+    letter-spacing: 0.02em;
+  }
+
+  .msg-text em {
+    font-style: normal;
+    color: var(--gold);
+  }
+
+  .msg-divider {
+    width: 60px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    margin: 2rem auto;
+  }
+
+  .msg-signature {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 20px rgba(200,164,90,0.3);
+  }
+
+  .msg-close {
+    margin-top: 2.5rem;
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.55rem;
+    font-weight: 200;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.3s;
+    user-select: none;
+  }
+
+  .msg-close:hover { color: var(--gold); }
+
+  /* floating particles */
+  .particle {
+    position: fixed;
+    width: 1.5px; height: 1.5px;
+    border-radius: 50%;
+    background: var(--gold);
+    pointer-events: none;
+    animation: floatUp linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(100vh); opacity: 0; }
+    8% { opacity: 0.5; }
+    92% { opacity: 0.2; }
+    100% { transform: translateY(-5vh); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scene">
+  <div class="glow-bg"></div>
+
+  <div class="turntable" id="turntable">
+    <div class="platter"></div>
+    <div class="record" id="record">
+      <div class="label">
+        <div class="label-title">Side A</div>
+        <div class="label-name">Aadi</div>
+        <div class="label-dot"></div>
+        <div class="label-sub">Original</div>
+      </div>
+    </div>
+
+    <!-- Tonearm -->
+    <div class="tonearm-wrapper" id="tonearm">
+      <div class="pivot"></div>
+      <div class="arm">
+        <div class="headshell">
+          <div class="stylus"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint" id="hint">lift the needle</div>
+</div>
+
+<!-- Message overlay -->
+<div class="message-overlay" id="overlay">
+  <div class="message-card">
+    <div class="msg-top-line">for you, always</div>
+    <div class="msg-text">
+      Everytime you play, it feels so <em>ethereal.</em><br/><br/>
+      Seeing you play is one of the most beautiful things
+      I have seen in my life —<br/>
+      and in all honesty,<br/>
+      it is like your guitar <em>sings.</em><br/><br/>
+      You give it the voice.<br/><br/>
+      Always, always, and always<br/>
+      I'll be in awe.
+    </div>
+    <div class="msg-divider"></div>
+    <div class="msg-signature">love, Anagha</div>
+    <div class="msg-close" id="close">place the needle back</div>
+  </div>
+</div>
+
+<script>
+  // Particles
+  for (let i = 0; i < 22; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (7 + Math.random() * 10) + 's';
+    p.style.animationDelay = (Math.random() * 14) + 's';
+    document.body.appendChild(p);
+  }
+
+  const tonearm = document.getElementById('tonearm');
+  const record  = document.getElementById('record');
+  const overlay = document.getElementById('overlay');
+  const hint    = document.getElementById('hint');
+  const closeBtn= document.getElementById('close');
+
+  let lifted = false;
+
+  function lift() {
+    if (lifted) return;
+    lifted = true;
+    tonearm.classList.add('lifted');
+    record.classList.add('paused');
+    hint.classList.add('hidden');
+    setTimeout(() => {
+      overlay.classList.add('open');
+    }, 700);
+  }
+
+  function lower() {
+    overlay.classList.remove('open');
+    setTimeout(() => {
+      lifted = false;
+      tonearm.classList.remove('lifted');
+      record.classList.remove('paused');
+      hint.classList.remove('hidden');
+    }, 800);
+  }
+
+  tonearm.addEventListener('click', lift);
+  hint.addEventListener('click', lift);
+  closeBtn.addEventListener('click', lower);
+</script>
+</body>
+</html>
